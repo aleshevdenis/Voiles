@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Veils is a simple decorator of an existing object that makes some of
+# Veil is a simple decorator of an existing object that makes some of
 # its methods cache all values and calculate them only once.
 #
 # For more information read
@@ -31,5 +31,53 @@
 # Author:: Denis Treshchev (denistreshchev@gmail.com)
 # Copyright:: Copyright (c) 2020 Denis Treshchev
 # License:: MIT
-class Veils
+class Veil
+  def initialize(origin, methods = {})
+    @originaldata = origin
+    @methods = methods
+    @pierced = false
+  end
+
+  def to_r
+    method_missing(:to_r)
+  end
+
+  def to_json(options = nil)
+    return @originaldata.to_a.to_json(options) if @originaldata.is_a?(Array)
+    method_missing(:to_json, options)
+  end
+
+  def method_missing(*args)
+    if @pierced
+      through(args)
+    else
+      method = args[0]
+      if @methods.key?(method)
+        @methods[method]
+      else
+        @pierced = true
+        through(args)
+      end
+    end
+  end
+
+  def respond_to?(method, include_private = false)
+    @originaldata.respond_to?(method, include_private) || @methods[method]
+  end
+
+  def respond_to_missing?(_method, _include_private = false)
+    true
+  end
+
+  private
+
+  def through(args)
+    method = args[0]
+    unless @originaldata.respond_to?(method)
+      raise "Method #{method} is absent in #{@originaldata}"
+    end
+    @originaldata.__send__(*args) do |*a|
+      yield(*a) if block_given?
+    end
+  end
 end

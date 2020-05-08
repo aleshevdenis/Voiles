@@ -23,13 +23,32 @@
 # SOFTWARE.
 
 require 'minitest/autorun'
+require 'json'
 require_relative '../lib/Voiles'
 
-# Veils test.
+# Veil test.
 # Author:: Denis Treshchev (denistreshchev@gmail.com)
 # Copyright:: Copyright (c) 2020 Denis Treshchev
 # License:: MIT
-class VeilsTest < Minitest::Test
-  def test_wraps_simple_object
+class VeilTest < Minitest::Test
+  def test_simple
+    obj = Object.new
+    def obj.read(foo)
+      foo
+    end
+
+    def obj.touch; end
+    foo = Veil.new(obj, read: 1)
+    assert_equal(1, foo.read(5))
+    foo.to_r
+    foo.touch
+    assert_equal(5, foo.read(5))
+  end
+
+  def test_behaves_like_array
+    origin = [1, 2, 3]
+    foo = Veil.new(origin)
+    assert(foo.respond_to?(:to_json))
+    assert_equal(JSON.pretty_generate(origin), JSON.pretty_generate(foo))
   end
 end
