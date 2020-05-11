@@ -48,18 +48,23 @@ class Veil
   end
 
   def method_missing(*args)
+    method = args[0]
     if @pierced
-      through(args) do |a|
-        yield(*a) if block_given?
+      unless @originaldata.respond_to?(method)
+        raise "Method #{method} is absent in #{@originaldata}"
       end
-    else
-      method = args[0]
-      if @methods.key?(method)
-        @methods[method]
+      if block_given?
+        @originaldata.__send__(*args) do |*a|
+          yield(*a)
+        end
       else
-        @pierced = true
-        method_missing(*args)
+        @originaldata.__send__(*args)
       end
+    elsif @methods.key?(method)
+      @methods[method]
+    else
+      @pierced = true
+      method_missing(*args)
     end
   end
 
@@ -69,17 +74,5 @@ class Veil
 
   def respond_to_missing?(_method, _include_private = false)
     true
-  end
-
-  private
-
-  def through(args)
-    method = args[0]
-    unless @originaldata.respond_to?(method)
-      raise "Method #{method} is absent in #{@originaldata}"
-    end
-    @originaldata.__send__(*args) do |*a|
-      yield(*a) if block_given?
-    end
   end
 end

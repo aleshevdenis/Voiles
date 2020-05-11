@@ -57,7 +57,7 @@ class VeilTest < Minitest::Test
     foo = Veil.new(origin, count: 1)
     assert_equal(1, foo.count)
     assert(!foo.empty?)
-    assert_equal(3, foo.size)
+    assert_equal(3, foo.count)
     observed = 0
     foo.each { |_| observed += 1 }
     assert_equal(3, observed)
