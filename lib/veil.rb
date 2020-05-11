@@ -49,14 +49,16 @@ class Veil
 
   def method_missing(*args)
     if @pierced
-      through(args)
+      through(args) do |a|
+        yield(*a) if block_given?
+      end
     else
       method = args[0]
       if @methods.key?(method)
         @methods[method]
       else
         @pierced = true
-        through(args)
+        method_missing(*args)
       end
     end
   end

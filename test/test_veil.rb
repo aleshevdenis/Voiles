@@ -45,10 +45,21 @@ class VeilTest < Minitest::Test
     assert_equal(5, foo.read(5))
   end
 
-  def test_behaves_like_array
+  def test_behaves_like_array_with_json
     origin = [1, 2, 3]
     foo = Veil.new(origin)
     assert(foo.respond_to?(:to_json))
     assert_equal(JSON.pretty_generate(origin), JSON.pretty_generate(foo))
+  end
+
+  def test_iterates_array
+    origin = [1, 2, 3]
+    foo = Veil.new(origin, count: 1)
+    assert_equal(1, foo.count)
+    assert(!foo.empty?)
+    assert_equal(3, foo.size)
+    observed = 0
+    foo.each { |_| observed += 1 }
+    assert_equal(3, observed)
   end
 end
