@@ -62,4 +62,13 @@ class VeilTest < Minitest::Test
     foo.each { |_| observed += 1 }
     assert_equal(3, observed)
   end
+
+  def test_iterates_array_twice
+    origin = [1, 2, 3]
+    foo = Veil.new(origin, count: 1)
+    assert_equal(1, foo.count)
+    observed = 0
+    foo.each { |_| observed += 1 }
+    assert_equal(3, observed)
+  end
 end
