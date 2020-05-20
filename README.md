@@ -32,8 +32,6 @@ obj = Veil.new(obj, to_r: 'Hello, world!')
 The method `to_r` will return `Hello, world!` until some other
 method is called and the Voiles is "pierced."
 
-Take into account that `Veil` is thread-safe.
-
 You can also use `Impenetrable` decorator, which can sometimes be treated differently:
 a very good instrument for data memoization.
 
@@ -52,6 +50,8 @@ There is also `AlterIn` decorator, to modify incoming method arguments
 require 'alterin'
 obj = AlterIn.new(obj, print: proc { |i| [i + 1] })
 ```
+
+Take into account that all classes are thread-safe.
 
 ## How to contribute
 
