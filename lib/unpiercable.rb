@@ -65,7 +65,7 @@ class Impenetrable
   end
 
   def respond_to?(method, include_private = false)
-    @originaldata.respond_to?(method, include_private) || @methods[method]
+    @originaldata.respond_to?(method, include_private) || @methods.key?(method)
   end
 
   def respond_to_missing?(_method, _include_private = false)
