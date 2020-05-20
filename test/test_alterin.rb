@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# (The MIT License)
+#
 # Copyright (c) 2020 Denis Treshchev
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,38 +22,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'rubygems'
-require 'rake'
-require 'rake/clean'
+require 'minitest/autorun'
+require 'json'
+require_relative '../lib/alterin'
 
-def name
-  @name ||= File.basename(Dir['*.gemspec'].first, '.*')
-end
-
-def version
-  Gem::Specification.load(Dir['*.gemspec'].first).version
-end
-
-task default: %i[clean test rubocop]
-
-require 'rake/testtask'
-desc 'Run all unit tests'
-Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = false
-end
-
-require 'rdoc/task'
-RDoc::Task.new do |rdoc|
-  rdoc.main = 'README.md'
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.rdoc_files.include('README.md', 'lib/**/*.rb')
-end
-
-require 'rubocop/rake_task'
-desc 'Run RuboCop on all directories'
-RuboCop::RakeTask.new(:rubocop) do |task|
-  task.fail_on_error = true
-  task.requires << 'rubocop-rspec'
+# AlterIn test.
+# Author:: Denis Treshchev (denistreshchev@gmail.com)
+# Copyright:: Copyright (c) 2020 Denis Treshchev
+# License:: MIT
+class AlterInTest < Minitest::Test
+  def test_simple
+    obj = Object.new
+    def obj.plus(first, second)
+      first + second
+    end
+    foo = AlterIn.new(obj, plus: proc { |a, b| [a + 1, b + 1] })
+    assert_equal(7, foo.plus(2, 3))
+  end
 end

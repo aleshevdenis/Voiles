@@ -22,21 +22,50 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'minitest/autorun'
-require 'json'
-require_relative '../lib/alterout'
-
-# AlterOut test.
+# Decorator to modify method inputs.
+#
+# For more information read
+# {README}[https://github.com/denistreshchev/Voiles/blob/master/README.md] file.
+#
 # Author:: Denis Treshchev (denistreshchev@gmail.com)
 # Copyright:: Copyright (c) 2020 Denis Treshchev
 # License:: MIT
-class AlterOutTest < Minitest::Test
-  def test_simple
-    obj = Object.new
-    def obj.read(val)
-      val
+class AlterIn
+  def initialize(origin, methods = {})
+    @originaldata = origin
+    @methods = methods
+  end
+
+  def to_r
+    method_missing(:to_r)
+  end
+
+  def to_json(options = nil)
+    return @originaldata.to_a.to_json(options) if @originaldata.is_a?(Array)
+    method_missing(:to_json, options)
+  end
+
+  def method_missing(*args)
+    method = args[0]
+    unless @originaldata.respond_to?(method)
+      raise "Method #{method} is absent in #{@originaldata}"
     end
-    foo = AlterOut.new(obj, read: proc { |r| r + 1 })
-    assert_equal(6, foo.read(5))
+    inputs = args[1..-1]
+    inputs = @methods[method].call(inputs) if @methods.key?(method)
+    if block_given?
+      @originaldata.__send__(*([method] + inputs)) do |*a|
+        yield(*a)
+      end
+    else
+      @originaldata.__send__(*([method] + inputs))
+    end
+  end
+
+  def respond_to?(method, include_private = false)
+    @originaldata.respond_to?(method, include_private) || @methods[method]
+  end
+
+  def respond_to_missing?(_method, _include_private = false)
+    true
   end
 end

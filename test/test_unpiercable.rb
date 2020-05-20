@@ -24,13 +24,13 @@
 
 require 'minitest/autorun'
 require 'json'
-require_relative '../lib/Voiles'
+require_relative '../lib/unpiercable'
 
 # Veil test.
 # Author:: Denis Treshchev (denistreshchev@gmail.com)
 # Copyright:: Copyright (c) 2020 Denis Treshchev
 # License:: MIT
-class VeilTest < Minitest::Test
+class ImpenetrableTest < Minitest::Test
   def test_simple
     obj = Object.new
     def obj.read(foo)
@@ -42,7 +42,7 @@ class VeilTest < Minitest::Test
     assert_equal(1, foo.read(5))
     foo.to_r
     foo.touch
-    assert_equal(5, foo.read(5))
+    assert_equal(1, foo.read(5))
   end
 
   def test_behaves_like_array_with_json
