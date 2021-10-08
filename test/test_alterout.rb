@@ -39,4 +39,18 @@ class AlterOutTest < Minitest::Test
     foo = AlterOut.new(obj, read: proc { |r| r + 1 })
     assert_equal(6, foo.read(5))
   end
+
+  def test_respond_to
+    foo = AlterOut.new(Object.new)
+    assert_equal(false, foo.respond_to?(:undefine_method))
+
+    foo = AlterOut.new(Object.new, method_return_object: Object.new)
+    assert_equal(true, foo.respond_to?(:method_return_object))
+
+    foo = AlterOut.new(Object.new, method_return_false: false)
+    assert_equal(true, foo.respond_to?(:method_return_false))
+
+    foo = AlterOut.new(Object.new, method_return_nil: nil)
+    assert_equal(true, foo.respond_to?(:method_return_nil))
+  end
 end

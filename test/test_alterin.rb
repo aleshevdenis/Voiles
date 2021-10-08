@@ -39,4 +39,18 @@ class AlterInTest < Minitest::Test
     foo = AlterIn.new(obj, plus: proc { |a, b| [a + 1, b + 1] })
     assert_equal(7, foo.plus(2, 3))
   end
+
+  def test_respond_to
+    foo = AlterIn.new(Object.new)
+    assert_equal(false, foo.respond_to?(:undefine_method))
+
+    foo = AlterIn.new(Object.new, method_return_object: Object.new)
+    assert_equal(true, foo.respond_to?(:method_return_object))
+
+    foo = AlterIn.new(Object.new, method_return_false: false)
+    assert_equal(true, foo.respond_to?(:method_return_false))
+
+    foo = AlterIn.new(Object.new, method_return_nil: nil)
+    assert_equal(true, foo.respond_to?(:method_return_nil))
+  end
 end
